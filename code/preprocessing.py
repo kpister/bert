@@ -3,6 +3,7 @@ from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import Dataset, DataLoader
+import nltk
 from nltk import sent_tokenize
 import sentencepiece as spm
 from config import *
@@ -121,7 +122,7 @@ def train_spm():
     # Save data to file
     spm.SentencePieceTrainer.train(
         input=filename,
-        model_prefix="m3",
+        model_prefix="data/m3",
         vocab_size=VOCAB_SIZE,
         user_defined_symbols=["<cls>", "<sep>", "<mask>", "<pad>"],
     )
@@ -165,8 +166,8 @@ def ttt(l, s):
 if __name__ == "__main__":
     import torch
 
+    nltk.download("punkt")
     train_spm()
 
     train_dataloader, _, _ = load_dataloaders()
     xx = next(iter(train_dataloader))
-    torch.stack(xx).transpose(1, 0).shape

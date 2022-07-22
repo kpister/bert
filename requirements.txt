@@ -1,3 +1,5 @@
-pytorch
+torch
 datasets
 sentencepiece
+nltk
+sklearn
