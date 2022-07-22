@@ -34,7 +34,7 @@ class BERTEmbedding(nn.Module):
     def __init__(self):
         super(BERTEmbedding, self).__init__()
         # token embedding
-        self.tok_embed = nn.Embedding(VOCAB_SIZE, MODEL_DIM, padding_idx=6)
+        self.tok_embed = nn.Embedding(VOCAB_SIZE + 1, MODEL_DIM, padding_idx=6)
         # position embedding
         self.pos_embed = PositionalEmbedding()
         # segment(token type) embedding
@@ -167,7 +167,7 @@ class MaskedLanguageModel(nn.Module):
     def __init__(self) -> None:
         super(MaskedLanguageModel, self).__init__()
         self.linear = nn.Linear(MODEL_DIM, VOCAB_SIZE)
-        self.softmax = nn.Softmax(-1)
+        self.softmax = nn.LogSoftmax(-1)
 
     def forward(self, x) -> tensor:
         return self.softmax(self.linear(x))
@@ -177,7 +177,7 @@ class NextSentencePrediction(nn.Module):
     def __init__(self) -> None:
         super(NextSentencePrediction, self).__init__()
         self.linear = nn.Linear(MODEL_DIM, 2)
-        self.softmax = nn.Softmax(-1)
+        self.softmax = nn.LogSoftmax(-1)
 
     def forward(self, x) -> tensor:
         # Only grab info from [cls] token

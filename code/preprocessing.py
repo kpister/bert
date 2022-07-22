@@ -10,9 +10,9 @@ from config import *
 
 
 CLS = [3]
-MASK = [18, 5]
-PAD = [6]
 SEP = [4]
+MASK = 5  # 18, 5
+PAD = [6]
 
 
 def flatten(l):
@@ -78,9 +78,9 @@ class WikiDataset(Dataset):
 
         bert_input = (
             CLS
-            + flatten([get_random_choice(x) for x in encoding])
+            + [get_random_choice(x) for x in encoding]
             + SEP
-            + flatten([get_random_choice(x) for x in next_encoding])
+            + [get_random_choice(x) for x in next_encoding]
             + SEP
         )
 
@@ -145,16 +145,16 @@ def load_dataloaders():
     return (train_dataloader, val_dataloader, test_dataloader)
 
 
-def get_random_choice(word: int) -> list[int]:
+def get_random_choice(word: int) -> int:
     if random.random() < 0.85:
-        return [word]
+        return word
 
     choice = random.random()
     if choice < 0.1:
-        return [word]
+        return word
 
     if choice < 0.2:
-        return [random.randint(7, VOCAB_SIZE)]
+        return random.randint(7, VOCAB_SIZE)
 
     return MASK
 

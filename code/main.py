@@ -3,6 +3,7 @@ from preprocessing import load_dataloaders
 from model import BERTLM, ScheduledOptim
 from torch.optim import Adam
 from torch import nn
+import pytorch_lightning
 from pytorch_lightning.lite import LightningLite
 
 
@@ -42,7 +43,13 @@ class Lite(LightningLite):
                 self.backward(loss)
                 optimizer.step_and_update_lr()
 
-                print(f"Epoch: {epoch}.{i} | Loss: {avg_loss / (i+1)}")
+                print(
+                    f"Epoch: {epoch}.{i}/{len(train_data)} "
+                    f"| Loss: {avg_loss / (i+1):.3f} "
+                    f"| NSP Loss: {nsp_loss.item():.3f} "
+                    f"| MLM Loss {mlm_loss.item():.3f}"
+                )
 
 
-Lite(devices=1, accelerator="gpu", precision=16).run(10)
+pytorch_lightning.seed_everything(0)
+Lite(devices=1, accelerator="gpu", precision="bf16").run(10)
