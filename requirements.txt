@@ -3,3 +3,4 @@ datasets
 sentencepiece
 nltk
 sklearn
+pytorch_lightning
