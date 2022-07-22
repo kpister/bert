@@ -64,7 +64,7 @@ class Lite(LightningLite):
                 )
 
             if i % 1000 == 0:
-                torch.save(model, "models/m_{epoch}_{i}.pth")
+                torch.save(model, f"models/m_{epoch}_{i}.pth")
 
 
 pytorch_lightning.seed_everything(0)
