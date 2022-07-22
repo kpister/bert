@@ -9,10 +9,10 @@ import sentencepiece as spm
 from config import *
 
 
-CLS = [3]
-SEP = [4]
+CLS = 3
+SEP = 4
 MASK = 5  # 18, 5
-PAD = [6]
+PAD = 6
 
 
 def flatten(l):
@@ -77,16 +77,16 @@ class WikiDataset(Dataset):
         next_encoding = self.sp.Encode(next_sentence, out_type=int)
 
         bert_input = (
-            CLS
+            [CLS]
             + [get_random_choice(x) for x in encoding]
-            + SEP
+            + [SEP]
             + [get_random_choice(x) for x in next_encoding]
-            + SEP
+            + [SEP]
         )
 
-        bert_input = bert_input + PAD * (self.max_len - len(bert_input))
-        bert_label = CLS + encoding + SEP + next_encoding + SEP
-        bert_label = bert_label + PAD * (self.max_len - len(bert_label))
+        bert_input = bert_input + [PAD] * (self.max_len - len(bert_input))
+        bert_label = [CLS] + encoding + [SEP] + next_encoding + [SEP]
+        bert_label = bert_label + [PAD] * (self.max_len - len(bert_label))
 
         segment_label = [1 for _ in range(len(encoding) + 2)] + [
             2 for _ in range(len(next_encoding) + 1)

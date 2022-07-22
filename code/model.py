@@ -75,28 +75,29 @@ class MultiHeadAttention(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, query, key, value, mask=None):
+        batch_size = query.size(0)
         _q = (
             self.linq(query)
-            .view(BATCH_SIZE, -1, self.num_heads, self.d_k)
+            .view(batch_size, -1, self.num_heads, self.d_k)
             .transpose(1, 2)
         )
         _k = (
             self.link(key)
-            .view(BATCH_SIZE, -1, self.num_heads, self.d_k)
+            .view(batch_size, -1, self.num_heads, self.d_k)
             .transpose(1, 2)
         )
         _v = (
             self.linv(value)
-            .view(BATCH_SIZE, -1, self.num_heads, self.d_k)
+            .view(batch_size, -1, self.num_heads, self.d_k)
             .transpose(1, 2)
         )
 
         # batchSize -1 h d_k -> batch_size d_m
-        _x, attn = self.attention(_q, _k, _v, mask, self.dropout)
+        _x, _ = self.attention(_q, _k, _v, mask, self.dropout)
         _x = (
             _x.transpose(1, 2)
             .contiguous()
-            .view(BATCH_SIZE, -1, self.num_heads * self.d_k)
+            .view(batch_size, -1, self.num_heads * self.d_k)
         )
 
         return self.out(_x)

@@ -1,10 +1,16 @@
-from config import BATCH_SIZE, MAX_LEN, VOCAB_SIZE
+from config import MAX_LEN, VOCAB_SIZE
 from preprocessing import load_dataloaders
 from model import BERTLM, ScheduledOptim
 from torch.optim import Adam
 from torch import nn
 import pytorch_lightning
 from pytorch_lightning.lite import LightningLite
+
+
+def cycle(dl):
+    while True:
+        for d in dl:
+            yield d
 
 
 class Lite(LightningLite):
@@ -18,6 +24,8 @@ class Lite(LightningLite):
         )
         model, _optimizer = self.setup(model, _optimizer)
         train_data, val_data, test_data = self.setup_dataloaders(*load_dataloaders())
+        train_data_len = len(train_data)
+        train_data = cycle(train_data)
 
         criterion: nn.Module = nn.NLLLoss(ignore_index=0)
         optimizer = ScheduledOptim(_optimizer)
@@ -35,7 +43,7 @@ class Lite(LightningLite):
 
                 nsp_loss = criterion(nsp_output, data["is_next"])
                 mlm_loss = criterion(
-                    mlm_output.reshape(BATCH_SIZE, VOCAB_SIZE, MAX_LEN),
+                    mlm_output.reshape(data["bert_label"].size(0), VOCAB_SIZE, MAX_LEN),
                     data["bert_label"],
                 )
                 loss = nsp_loss + mlm_loss
@@ -44,7 +52,7 @@ class Lite(LightningLite):
                 optimizer.step_and_update_lr()
 
                 print(
-                    f"Epoch: {epoch}.{i}/{len(train_data)} "
+                    f"Epoch: {epoch}.{i % train_data_len}/{train_data_len} "
                     f"| Loss: {avg_loss / (i+1):.3f} "
                     f"| NSP Loss: {nsp_loss.item():.3f} "
                     f"| MLM Loss {mlm_loss.item():.3f}"
