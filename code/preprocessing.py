@@ -70,7 +70,7 @@ class WikiDataset(Dataset):
             next_sentence = self.sentences[(idx + 1) % len(self)]
             is_next_label = 1
         else:
-            next_sentence = self.sentences[random.randint(0, len(self))]
+            next_sentence = self.sentences[random.randint(0, len(self) - 1)]
             is_next_label = 0
 
         encoding = self.sp.Encode(sentence, out_type=int)
